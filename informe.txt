@@ -60,8 +60,8 @@ B. Fragmentos Representativos del Código:
    ValidarCodigo ENDP
 
 C. Comparación de Líneas de Código Fuente:
-- Líneas en la Versión de la Unidad 2: ~620 líneas.
-- Líneas en la Versión de la Unidad 3: ~540 líneas.
+- Líneas en la Versión de la Unidad 2: ~991 líneas.
+- Líneas en la Versión de la Unidad 3: ~871 líneas.
 - Análisis: La introducción de macros para cadenas y errores, sumada al uso de la directiva 'USES', permitió eliminar la repetición masiva de código y simplificar los marcos de pila, logrando una reducción neta y optimización estructural del programa.
 
 D. Tabla de Pruebas Actualizada:
