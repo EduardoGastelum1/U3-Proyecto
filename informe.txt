@@ -1,0 +1,74 @@
+INFORME BREVE DEL PROYECTO - SISTEMA DE INVENTARIO Y VENTAS EN ENSAMBLADOR
+
+1. Negocio Elegido:
+Papelería escolar.
+
+2. Regla de Negocio Adicional:
+Descuento por Mayoreo (10%). Se aplica de forma automática cuando el cliente adquiere 10 o más unidades de un mismo producto en una sola venta.
+
+3. Estructura de Datos en Memoria:
+El sistema utiliza un arreglo contiguo llamado 'catalogo' con capacidad para 10 productos. Cada registro mide exactamente 42 bytes:
+- Bytes 0-7: Código único con formato ABC-123.
+- Bytes 8-33: Nombre del producto (hasta 25 caracteres).
+- Bytes 34-37: Precio unitario en centavos enteros (DWORD).
+- Bytes 38-41: Existencias disponibles (DWORD, 0 a 100).
+
+4. Formato del Archivo de Inventario:
+El archivo binario 'inventario.dat' almacena de manera secuencial la variable 'total_productos' (4 bytes), 'ingresos_sesion' (4 bytes) y el bloque completo del 'catalogo' (420 bytes).
+_________________________________________________________________________
+VERSIÓN DE LA UNIDAD 3 (MEJORAS)
+
+A. Tabla de Antes y Después (Unidad 2 vs Unidad 3):
+- Parte del programa: Impresión de mensajes en consola.
+  * Problema en U2: Bloques repetitivos de 'mov edx, OFFSET ...', 'call WriteString' y 'call Crlf'.
+  * Cambio en U3: Creación e implementación de las macros 'ImprimirTexto' y 'MostrarError'.
+  * Beneficio: Reducción drástica de líneas repetidas y mayor legibilidad visual.
+
+- Parte del programa: Limpieza de búferes de entrada.
+  * Problema en U2: Código redundante para vaciar la cadena 'bufferEntrada' de 40 bytes.
+  * Cambio en U3: Creación de la macro 'LimpiarBuffer' utilizando etiquetas 'LOCAL'.
+  * Beneficio: Automatización del borrado seguro de memoria entre lecturas sucesivas.
+
+- Parte del programa: Resguardo de registros.
+  * Problema en U2: Uso manual exhaustivo de instrucciones individuales 'PUSH' y 'POP'.
+  * Cambio en U3: Aplicación sistemática de la directiva 'USES' en las cabeceras de los procedimientos.
+  * Beneficio: Automatización del almacenamiento seguro y prevención de desbordamientos de pila.
+
+B. Fragmentos Representativos del Código:
+1. Macro reutilizable con etiqueta LOCAL ('LimpiarBuffer'):
+   LimpiarBuffer MACRO
+       LOCAL limpiar_loop
+       push ecx
+       push esi
+       mov ecx, SIZEOF bufferEntrada
+       mov esi, OFFSET bufferEntrada
+       mov al, 0
+   limpiar_loop:
+       mov [esi], al
+       inc esi
+       loop limpiar_loop
+       pop esi
+       pop ecx
+   ENDM
+
+2. Procedimiento optimizado con la directiva 'USES' (dejando EAX fuera para retorno):
+   ValidarCodigo PROC USES esi
+       ; Valida formato estricto ABC-123 usando ESI
+       ; EAX queda fuera de USES para retornar estatus (0 o 1)
+       ...
+       ret
+   ValidarCodigo ENDP
+
+C. Comparación de Líneas de Código Fuente:
+- Líneas en la Versión de la Unidad 2: ~620 líneas.
+- Líneas en la Versión de la Unidad 3: ~540 líneas.
+- Análisis: La introducción de macros para cadenas y errores, sumada al uso de la directiva 'USES', permitió eliminar la repetición masiva de código y simplificar los marcos de pila, logrando una reducción neta y optimización estructural del programa.
+
+D. Tabla de Pruebas Actualizada:
+- Alta Válida (LAP-001, Lapicero, 15.50, 50) -> Resultado: Éxito, producto guardado.
+- Alta Duplicada (LAP-001 repetido) -> Resultado: Mensaje de error por código duplicado.
+- Búsqueda (LAP-001) -> Resultado: Despliegue correcto de datos, precio en MXN y stock.
+- Entrada de Mercancía (+20 unidades) -> Resultado: Actualización de existencias exitosa.
+- Venta con Mayoreo (10 unidades) -> Resultado: Venta procesada con 10% de descuento automático.
+- Resumen (Opción 5) -> Resultado: Cálculo numérico exacto de inventario e ingresos.
+- Persistencia (Guardar/Cargar) -> Resultado: Datos recuperados intactos desde 'inventario.dat'.
